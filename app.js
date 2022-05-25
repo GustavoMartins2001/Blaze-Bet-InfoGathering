@@ -32,9 +32,9 @@ async function getData() {
 }
 
 var semGale = { acertos: 0, erros: 0, diferenca: 0 };
-var somenteAteGale1 = { acertos: 0, acertosG1: 0, erros: 0, diferenca: 0 };
-var somenteAteGale2 = { acertos: 0, acertosG1: 0, acertosG2: 0, erros: 0, diferenca: 0 };
-var somenteAteGale3 = { acertos: 0, acertosG1: 0, acertosG2: 0, acertosG3: 0, erros: 0, diferenca: 0 };
+var somenteAteGale1 = { acertos: 0, acertosG1: 0, erros: 0, diferenca: 0, jogouG1: false, jogouSemGale: false };
+var somenteAteGale2 = { acertos: 0, acertosG1: 0, acertosG2: 0, erros: 0, diferenca: 0, jogouG1: false, jogouG2: false, jogouSemGale: false };
+var somenteAteGale3 = { acertos: 0, acertosG1: 0, acertosG2: 0, acertosG3: 0, erros: 0, diferenca: 0, jogouG1: false, jogouG2: false, jogouG3: false, jogouSemGale: false };
 
 function repeat() {
     getData();
@@ -44,25 +44,84 @@ function repeat() {
 }
 
 async function totalRecords() {
-    let records = await docsArr(db, "double-results", 300);
+    let records = await docsArr(db, "double-results", 2880);
     records = records.reverse();
-    const assertArrays = [[1, 2, 2, 1, 1, 2], [1, 2, 1, 2, 1, 2], [2, 1, 1, 2, 2, 1], [2, 1, 2, 1, 2, 1]];
-    while (records.length >= 10) {
-        assert(records, assertArrays);
-        assertG1(records, assertArrays);
-        assertG2(records, assertArrays);
-        assertG3(records, assertArrays);
-        records = records.splice(1, records.length);
-    }
+
+    console.log("Total de registros: " + records.length);
+
+    const assertArrays = [[1, 2, 2, 1, 1, 2], [2, 1, 1, 2, 2, 1], [2, 1, 2, 1, 2, 1],[1, 2, 1, 2, 1, 2], [1, 1, 1, 2],[2, 2, 2, 1]];
+    let recordsSemGale = [...records];
+    let recordsG1 = [...records];
+    let recordsG2 = [...records];
+    let recordsG3 = [...records];
+    do {
+        assert(recordsSemGale, assertArrays);
+        if (recordsG1.length >= 7) assertG1(recordsG1, assertArrays);
+        if (recordsG2.length >= 8) assertG2(recordsG2, assertArrays);
+        if (recordsG3.length >= 9) assertG3(recordsG3, assertArrays);
+        recordsSemGale = recordsSemGale.splice(1, recordsSemGale.length);
+
+        if (recordsG1.length >= 7) recordsG1 = recordsG1.splice(getSpliceAmount(somenteAteGale1), recordsG1.length);
+        if (recordsG2.length >= 8) recordsG2 = recordsG2.splice(getSpliceAmount(somenteAteGale2), recordsG2.length);
+        if (recordsG3.length >= 9) recordsG3 = recordsG3.splice(getSpliceAmount(somenteAteGale3), recordsG3.length);
+        updateJogadas();
+    } while (recordsSemGale.length >= 6);
+
     updateObjects();
-    console.log(records);
+    console.log("Sem gale: ");
+    console.log(semGale);
+    console.log("Até Gale 1: ");
+    console.log(somenteAteGale1);
+    console.log("Até Gale 2:  ");
+    console.log(somenteAteGale2);
+    console.log("Até Gale 3:");
+    console.log(somenteAteGale3);
+}
+
+function updateJogadas() {
+    somenteAteGale1.jogouG1 = false;
+    somenteAteGale2.jogouG1 = false;
+    somenteAteGale2.jogouG2 = false;
+    somenteAteGale3.jogouG1 = false;
+    somenteAteGale3.jogouG2 = false;
+    somenteAteGale3.jogouG3 = false;
+}
+
+function getSpliceAmount(obj) {
+    let result = 1;
+
+    if (obj.jogouG1) {
+        result = 2;
+    }
+    else if (obj.jogouG2) {
+        result = 3;
+    }
+    else if (obj.jogouG3) {
+        result = 4;
+    }
+
+    return result;
 }
 
 function updateObjects() {
-    semGale.diferenca = semGale.acertos - semGale.erros;
-    somenteAteGale1.diferenca = somenteAteGale1.acertos + somenteAteGale1.acertosG1 - semGale.erros;
-    somenteAteGale2.diferenca = somenteAteGale2.acertos + somenteAteGale2.acertosG1 + somenteAteGale2.acertosG2 - semGale.erros;
-    somenteAteGale3.diferenca = somenteAteGale3.acertos + somenteAteGale3.acertosG1 + somenteAteGale3.acertosG2 + somenteAteGale3.acertosG3 - semGale.erros;
+    // semGale.erros *= 1.5;
+    // somenteAteGale1.erros *= 1.5;
+    // somenteAteGale2.erros *= 1.5;
+    // somenteAteGale3.erros *= 1.5;
+    // semGale.acertos *= 0.5;
+    // somenteAteGale1.acertos *= 0.5;
+    // somenteAteGale2.acertos *= 0.5;
+    // somenteAteGale3.acertos *= 0.5;
+    // somenteAteGale1.acertosG1 *= 0.5;
+    // somenteAteGale2.acertosG1 *= 0.5;
+    // somenteAteGale3.acertosG1 *= 0.5;
+    // somenteAteGale2.acertosG2 *= 0.5;
+    // somenteAteGale3.acertosG2 *= 0.5;
+    // somenteAteGale3.acertosG3 *= 0.5;
+    semGale.diferenca = semGale.acertos - semGale.erros; // + semGale.brancos * 6;
+    somenteAteGale1.diferenca = somenteAteGale1.acertos + somenteAteGale1.acertosG1 - somenteAteGale1.erros; //+ somenteAteGale1.brancos * 6;
+    somenteAteGale2.diferenca = somenteAteGale2.acertos + somenteAteGale2.acertosG1 + somenteAteGale2.acertosG2 - somenteAteGale2.erros; //+ somenteAteGale2.brancos * 6;
+    somenteAteGale3.diferenca = somenteAteGale3.acertos + somenteAteGale3.acertosG1 + somenteAteGale3.acertosG2 + somenteAteGale3.acertosG3 - somenteAteGale3.erros; //+ somenteAteGale3.brancos * 6;
 }
 
 function docsArr(db, collection, limit) {
@@ -103,15 +162,19 @@ function assertG3(array, assertArrays) {
             else if (i === assertArray.length - 1) {
                 if (array[i + 1].cor === element) {
                     somenteAteGale3.acertosG1++;
+                    somenteAteGale3.jogouG2 = true;
                 }
                 else if (array[i + 2].cor === element) {
                     somenteAteGale3.acertosG2++;
+                    somenteAteGale3.jogouG2 = true;
                 }
                 else if (array[i + 3].cor === element) {
                     somenteAteGale3.acertosG3++;
+                    somenteAteGale3.jogouG3 = true;
                 }
                 else {
                     somenteAteGale3.erros = somenteAteGale3.erros + 15;
+                    somenteAteGale3.jogouG3 = true;
                 }
                 break;
             }
@@ -135,12 +198,15 @@ function assertG2(array, assertArrays) {
             else if (i === assertArray.length - 1) {
                 if (array[i + 1].cor === element) {
                     somenteAteGale2.acertosG1++;
+                    somenteAteGale2.jogouG1 = true;
                 }
                 else if (array[i + 2].cor === element) {
                     somenteAteGale2.acertosG2++;
+                    somenteAteGale2.jogouG2 = true;
                 }
                 else {
                     somenteAteGale2.erros = somenteAteGale2.erros + 7;
+                    somenteAteGale2.jogouG2 = true;
                 }
                 break;
             }
@@ -164,9 +230,11 @@ function assertG1(array, assertArrays) {
             else if (i === assertArray.length - 1) {
                 if (array[i + 1].cor === element) {
                     somenteAteGale1.acertosG1++;
+                    somenteAteGale1.jogouG1 = true;
                 }
                 else {
                     somenteAteGale1.erros = somenteAteGale1.erros + 3;
+                    somenteAteGale1.jogouG1 = true;
                 }
                 break;
             }
