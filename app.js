@@ -44,12 +44,26 @@ function repeat() {
 }
 
 async function totalRecords() {
-    let records = await docsArr(db, "double-results", 2880);
+    let records = await docsArr(db, "double-results", 11*120);
     records = records.reverse();
 
     console.log("Total de registros: " + records.length);
 
-    const assertArrays = [[1, 2, 2, 1, 1, 2], [2, 1, 1, 2, 2, 1], [2, 1, 2, 1, 2, 1],[1, 2, 1, 2, 1, 2], [1, 1, 1, 2],[2, 2, 2, 1]];
+    const padraoPVPVPV = [[2, 1, 2, 1, 2, 1], [1, 2, 1, 2, 1, 2]];
+    const padraoVPPVVP = [[1, 2, 2, 1, 1, 2], [2, 1, 1, 2, 2, 1]];
+    const padraoVPPPV = [[2, 1, 1, 1, 2], [1, 2, 2, 2, 1]];
+    const padraoPPVVPVP = [[1, 1, 2, 2, 1, 2, 1], [2, 2, 1, 1, 2, 1, 2]];
+    const padraoPPPPPPPV = [[1, 1, 1, 1, 1, 1, 1, 2], [2, 2, 2, 2, 2, 2, 2, 1]];
+    const padraoPPPVVVP = [[1, 1, 1, 2, 2, 2, 1], [2, 2, 2, 1, 1, 1, 2]];
+    let assertArrays = [];
+
+    // padraoPVPVPV.forEach(padrao => assertArrays.push(padrao));
+    // padraoVPPVVP.forEach(padrao => assertArrays.push(padrao));
+    // padraoVPPPV.forEach(padrao => assertArrays.push(padrao));
+    // padraoPPVVPVP.forEach(padrao => assertArrays.push(padrao));
+    // padraoPPPVVVP.forEach(padrao => assertArrays.push(padrao));
+    padraoPPPPPPPV.forEach(padrao => assertArrays.push(padrao));
+
     let recordsSemGale = [...records];
     let recordsG1 = [...records];
     let recordsG2 = [...records];
@@ -90,14 +104,14 @@ function updateJogadas() {
 function getSpliceAmount(obj) {
     let result = 1;
 
-    if (obj.jogouG1) {
-        result = 2;
+    if (obj.jogouG3) {
+        result = 4;
     }
     else if (obj.jogouG2) {
         result = 3;
     }
-    else if (obj.jogouG3) {
-        result = 4;
+    else if (obj.jogouG1) {
+        result = 2;
     }
 
     return result;
@@ -162,7 +176,7 @@ function assertG3(array, assertArrays) {
             else if (i === assertArray.length - 1) {
                 if (array[i + 1].cor === element) {
                     somenteAteGale3.acertosG1++;
-                    somenteAteGale3.jogouG2 = true;
+                    somenteAteGale3.jogouG1 = true;
                 }
                 else if (array[i + 2].cor === element) {
                     somenteAteGale3.acertosG2++;
